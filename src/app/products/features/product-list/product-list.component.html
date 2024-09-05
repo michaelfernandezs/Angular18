@@ -1,7 +1,6 @@
 <p >product-list works!</p>
-{{productsState.State.status()}} = product
+
+{{productsState.State.status()}}
 @for(product of productsState.State().products; track product){
-
-  <P>{{product.title}}</P>
-
+  <app-product-card [product]="product"/>
 }
