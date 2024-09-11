@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-product-detail',
@@ -7,6 +8,15 @@ import { Component } from '@angular/core';
   templateUrl: './product-detail.component.html',
   styles: ``
 })
-export class ProductDetailComponent {
+export  default class  ProductDetailComponent {
+
+  id=input.required<string>
+
+  constructor(){
+      effect(()=>{
+        console.log(this.id)
+      });
+  }
+
 
 }
