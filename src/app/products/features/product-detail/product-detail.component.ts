@@ -1,20 +1,24 @@
 import { Component, effect, inject, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ProductDetailStateService } from '../../data-access/product-detail-state.service';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [],
+  imports: [CurrencyPipe],
   templateUrl: './product-detail.component.html',
-  styles: ``
+  providers: [ProductDetailStateService]
 })
 export  default class  ProductDetailComponent {
 
-  id=input.required<string>
+  productDetailState=inject(ProductDetailStateService).State;
+
+  id=input.required<string>()
 
   constructor(){
       effect(()=>{
-        console.log(this.id)
+        this.productDetailState.getById(this.id());
       });
   }
 

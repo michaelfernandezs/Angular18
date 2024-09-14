@@ -2,7 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { Product} from "../../shared/interfaces/product.interface";
 import{signalSlice} from 'ngxtension/signal-slice'
 import { ProductService } from "./products.service";
-import { map, startWith, Subject,switchMap } from "rxjs";
+import { catchError, map, of, startWith, Subject,switchMap } from "rxjs";
 interface State{
     products:Product[];
     status:'loading'|'success'|'error';
@@ -22,6 +22,12 @@ changePage$=new Subject<number>();
       startWith(1),
       switchMap((page)=>this.productsService.getProducts(page)),
       (map((products)=>({products,status:'success' as const}))),
+      catchError(()=>{
+        return of({
+          products:[],
+          status:'error'as const
+        });
+      })
     );
 
     State=signalSlice({

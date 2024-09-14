@@ -1,9 +1,15 @@
 <div class="mx-auto max-w-screen-xl">
-  @if(productsState.State.status()==="loading"){
-    <p>Loading....</p>
 
-}@else{
+  @switch (productsState.State.status()) {
+    @case ('loading') {
+      <p>Loading....</p>
+    }
+    @case ('error'){
+      <p>Error</p>
+    }
 
+    @default {
+      
     <div class="flex justify-end my-6">
       <button type="button"
       (click)="changePage()"
@@ -18,6 +24,11 @@
     </div>
 
 
+    }
+    
   }
+
+
+  
 
 </div>

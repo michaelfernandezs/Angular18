@@ -5,6 +5,5 @@ export interface Product{
     id: number;
     image: string;
     price: number;
-    calling:{rate:number, count:number};
     title: string;
 }
