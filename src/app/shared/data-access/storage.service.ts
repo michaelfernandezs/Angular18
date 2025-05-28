@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
 import {  ProductItemCart } from "../interfaces/product.interface";
 import { Observable, of } from "rxjs";
-import { json } from "stream/consumers";
+// This service is responsible for loading and saving products to localStorage.
+// It provides methods to retrieve products from localStorage and save products to localStorage.
 @Injectable({
     providedIn: 'root'
 })

@@ -1,5 +1,4 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, map, tap } from 'rxjs';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { ProductItemCart } from '../interfaces/product.interface';
 import { StorageService } from './storage.service';
 
@@ -14,40 +13,88 @@ interface State {
 export class CartStateService {
   private _storageService = inject(StorageService);
 
-  // BehaviorSubject para manejar el estado
-  private stateSubject = new BehaviorSubject<State>({
+  // Estado reactivo del carrito
+  private state = signal<State>({
     products: [],
     loaded: false,
   });
 
-  // Observable para exponer el estado
-  state$ = this.stateSubject.asObservable();
-
-  // Cargar productos desde el servicio de almacenamiento y actualizar el estado
-  loadProducts$ = this._storageService.loadProducts().pipe(
-    map((products) => ({
-      products,
-      loaded: true,
-    })),
-    tap((newState) => {
-      console.log('Loaded products:', newState.products); // Ver en consola los productos cargados
-      this.stateSubject.next(newState); // Actualizar el estado
-    })
+  // Computed: Exponer partes del estado
+  readonly products = computed(() => this.state().products);
+  readonly loaded = computed(() => this.state().loaded);
+  readonly totalItems = computed(() => this.state().products.length);
+  readonly totalPrice = computed(() =>
+    this.state().products.reduce((total, p) => total + p.price * p.quantity, 0)
   );
 
   constructor() {
-    // Cargar productos al inicializar el servicio
-    this.loadProducts$.subscribe();
+    // Cargar productos desde almacenamiento al iniciar
+    effect(() => {
+      this._storageService.loadProducts().subscribe((products) => {
+        console.log('Loaded from storage:', products);
+        this.state.set({
+          products,
+          loaded: true,
+        });
+      });
+    } ,
+      {allowSignalWrites: true} // Permitir escritura en el estado dentro del efecto
+  );
+
+    // Guardar en storage cada vez que los productos cambien
+    effect(() => {
+      const { products, loaded } = this.state();
+      if (loaded) {
+        this._storageService.saveProducts(products);
+        console.log('Saved to storage:', products);
+      }
+    });
   }
 
-  // Método para obtener el estado actual
+  // Obtener el estado completo si lo necesitas
   getState() {
-    return this.stateSubject.getValue();
+    return this.state();
   }
 
-  // Puedes añadir otras acciones o modificaciones de estado aquí
-  load() {
-    const currentState = this.getState();
-    console.log('Current state products:', currentState.products); // Ver en consola los productos actuales
+  // Añadir producto al carrito
+  addProduct(product: ProductItemCart) {
+    const current = this.state().products;
+    const index = current.findIndex((p) => p.id === product.id);
+
+    let updatedProducts;
+    if (index !== -1) {
+      // Si ya existe, actualizar cantidad
+      updatedProducts = current.map((p, i) =>
+        i === index ? { ...p, quantity: p.quantity + product.quantity } : p
+      );
+    } else {
+      // Si no existe, añadir nuevo
+      updatedProducts = [...current, product];
+    }
+
+    this.state.update((s) => ({
+      ...s,
+      products: updatedProducts,
+    }));
+  }
+
+  // Eliminar producto del carrito
+  removeProduct(productId: number) {
+    const updatedProducts = this.state()
+      .products
+      .filter((p) => p.id !== productId);
+
+    this.state.update((s) => ({
+      ...s,
+      products: updatedProducts,
+    }));
+  }
+
+  // Vaciar el carrito
+  clearCart() {
+    this.state.update((s) => ({
+      ...s,
+      products: [],
+    }));
   }
 }

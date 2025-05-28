@@ -1,5 +1,4 @@
 import { Component, effect, inject, input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { ProductDetailStateService } from '../../data-access/product-detail-state.service';
 import { CurrencyPipe } from '@angular/common';
 
@@ -12,7 +11,7 @@ import { CurrencyPipe } from '@angular/common';
 })
 export  default class  ProductDetailComponent {
 
-  productDetailState=inject(ProductDetailStateService).State;
+  productDetailState=inject(ProductDetailStateService).state;
 
   id=input.required<string>()
 

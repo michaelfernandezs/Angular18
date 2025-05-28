@@ -1,8 +1,7 @@
-import { getNgModuleById, inject, Injectable } from "@angular/core";
+import {  inject, Injectable } from "@angular/core";
 import { Product} from "../../shared/interfaces/product.interface";
 import{signalSlice} from 'ngxtension/signal-slice'
 import { ProductService } from "./products.service";
-import { state } from "@angular/animations";
 import { map, Observable, switchMap } from "rxjs";
 
 interface State{
@@ -19,7 +18,7 @@ export class ProductDetailStateService {
       };
 
 
-    State=signalSlice({
+    state=signalSlice({
         initialState:this.initialState,
         actionSources: {
             getById: (_state, $: Observable<string>) => $.pipe(
